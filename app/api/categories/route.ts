@@ -21,3 +21,19 @@ export const POST = async (request: Request) => {
 
     return NextResponse.json({ message: "Category", categories });
 };
+
+export const DELETE = async () => {
+  await connectDB();
+
+  const categories = await FoodCategories.find();
+
+  return NextResponse.json(categories);
+};
+
+export const PATCH = async () => {
+  await connectDB();
+
+  const categories = await FoodCategories.find();
+
+  return NextResponse.json(categories);
+};
