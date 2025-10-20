@@ -22,18 +22,44 @@ export const POST = async (request: Request) => {
     return NextResponse.json({ message: "Category", categories });
 };
 
-export const DELETE = async () => {
+export const DELETE = async (request: Request) => {
   await connectDB();
 
-  const categories = await FoodCategories.find();
+  const body = await request.json();
+  const { id } = body;
 
-  return NextResponse.json(categories);
+  if (!id) {
+    return NextResponse.json({ message: "Category ID is required" }, { status: 400 });
+  }
+
+  const deletedCategory = await FoodCategories.findByIdAndDelete(id);
+
+  if (!deletedCategory) {
+    return NextResponse.json({ message: "Category not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ message: "Category deleted", deletedCategory });
 };
 
-export const PATCH = async () => {
+export const PATCH = async (request: Request) => {
   await connectDB();
 
-  const categories = await FoodCategories.find();
+  const body = await request.json();
+  const { id, categoryName } = body;
 
-  return NextResponse.json(categories);
+  if (!id) {
+    return NextResponse.json({ message: "Category ID is required" }, { status: 400 });
+  }
+
+  const updatedCategory = await FoodCategories.findByIdAndUpdate(
+    id,
+    { categoryName },
+    { new: true } // Шинэчилсэн объектыг буцаана
+  );
+
+  if (!updatedCategory) {
+    return NextResponse.json({ message: "Category not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ message: "Category updated", updatedCategory });
 };
