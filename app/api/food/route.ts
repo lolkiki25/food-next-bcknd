@@ -1,34 +1,41 @@
-import { connectDB } from "@/lib/connectDb";
-import Food from "@/lib/models/Food";
-import FoodCategories from "@/lib/models/FoodCategories";
-import { NextResponse } from "next/server";
+import { createFood, getAllFoods } from "@/lib/services/food-service";
+import { uploadImageToCloudinary } from "@/lib/utils/uploadImage";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (request: Request) => {
-    await connectDB();
+export async function POST(request: NextRequest) {
+  const formData = await request.formData();
 
-    const food = await Food.create({
-        foodName: "Pizza",
-        price: 9.99,
-        ingredients: "Cheese, Tomato Sauce, Pepperoni",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxMVIL5tWY7MfEvRDwYUMbPiODGF35YvbxOA&s",
-        category: "68edc9def80819220c084f1e"
-    });
-    return NextResponse.json({ message: "Food Created", food });
-};
+  // Extract food fields from formData
+  const name = formData.get("name") as string;
+  const ingredients = formData.get("ingredients") as string;
+  const price = formData.get("price") as string;
+  const categoryId = formData.get("categoryId") as string;
+  const image = formData.get("image") as File;
 
-export const GET = async (req:Request) => {
-  await connectDB();
-  FoodCategories;
+  const uploadedUrl = await uploadImageToCloudinary(image);
 
-  const foods = await Food.find().populate("category");
+  const result = await createFood(
+    name,
+    ingredients,
+    Number(price),
+    categoryId,
+    uploadedUrl
+  );
 
-   return NextResponse.json({ message: "Food Created", foods });
-};
+  if (result) {
+    return NextResponse.json(
+      { message: "Food item received successfully" },
+      { status: 200 }
+    );
+  } else {
+    return NextResponse.json(
+      { message: "Food Failed to create" },
+      { status: 400 }
+    );
+  }
+}
 
-export const PATCH = async () => {
-  await connectDB();
-
-  const foods = await Food.find();
-
-  return NextResponse.json(foods);
+export const GET = async () => {
+  const foods = await getAllFoods();
+  return NextResponse.json({ data: foods }, { status: 200 });
 };

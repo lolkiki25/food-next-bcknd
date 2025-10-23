@@ -1,22 +1,13 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { FoodType } from "../utils/types";
 
-const FoodSchema = new Schema(
-    {
-        foodName: { type: String, required: true },
-        price: { type: Number, required: true },
-        image: { type: String, required: true },
-        ingredients: { type: String, required: true },
-        category: {
-            type: Schema.ObjectId,
-            ref: "FoodCategories",
-            required: true,
-        },
-    },
-    {
-        timestamps: true,
+const FoodSchema = new Schema({
+  name: String,
+  price: { type: Number, required: true },
+  categoryId: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+  ingredients: String,
+  imageUrl: String,
+});
 
-    }
-);
-
-const Food = models.Food || model("Food", FoodSchema);
-export default Food;
+export const Food =
+  mongoose.models.Food || mongoose.model<FoodType>("Food", FoodSchema);
